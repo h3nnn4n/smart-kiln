@@ -33,7 +33,7 @@ def main():
         for sensor_id, temperature in enumerate(temperatures):
             push_measurement(
                 "temperature",
-                value=temperature,
+                value=float(temperature),
                 tags={
                     "sensor_id": sensor_id,
                 },
