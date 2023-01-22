@@ -3,9 +3,12 @@
 
 #include "max6675.h"
 
-int thermoDO = 4;
-int thermoCS = 5;
-int thermoCLK = 6;
+const int thermoDO = 4;
+const int thermoCS = 5;
+const int thermoCLK = 6;
+
+// How long we wait before reading the sensors after each loop
+const int READ_INTERVAL = 2;  // Seconds
 
 unsigned int counter = 0;
 
@@ -28,5 +31,5 @@ void loop() {
     Serial.println();
 
     counter++;
-    delay(1000);
+    delay(READ_INTERVAL * 1000);
 }
