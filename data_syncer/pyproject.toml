@@ -10,6 +10,7 @@ packages = [{include = "data_syncer"}]
 [tool.poetry.dependencies]
 python = "^3.10"
 pyserial = "^3.5"
+opi-gpio = "^0.5.2"
 
 
 [build-system]
