@@ -7,6 +7,8 @@ int thermoDO = 4;
 int thermoCS = 5;
 int thermoCLK = 6;
 
+unsigned int counter = 0;
+
 MAX6675 thermocouple(thermoCLK, thermoCS, thermoDO);
 
 void setup() {
@@ -18,10 +20,13 @@ void setup() {
 }
 
 void loop() {
-	float temp = thermocouple.readCelsius();
+    float temp = thermocouple.readCelsius();
 
-    Serial.print("C = ");
-    Serial.println(temp);
+    Serial.print(counter);
+    Serial.print(",");
+    Serial.print(temp);
+    Serial.println();
 
+    counter++;
     delay(1000);
 }
