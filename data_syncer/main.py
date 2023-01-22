@@ -1,9 +1,11 @@
-import serial
 from datetime import datetime
 
-PORT = "/dev/ttyUSB0"
-BAUDRATE = 9600
-TIMEOUT = 2
+import serial
+from decouple import config
+
+PORT = config("PORT")
+BAUDRATE = config("BAUDRATE", default=9600, cast=int)
+TIMEOUT = config("TIMEOUT", default=2, cast=int)
 
 
 def main():
