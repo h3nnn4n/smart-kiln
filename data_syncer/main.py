@@ -1,11 +1,10 @@
 from datetime import datetime
 
 import serial
-from decouple import config
 
-PORT = config("PORT")
-BAUDRATE = config("BAUDRATE", default=9600, cast=int)
-TIMEOUT = config("TIMEOUT", default=2, cast=int)
+from config import BAUDRATE, PORT, TIMEOUT
+
+from metrics import push_measurement
 
 
 def main():
@@ -14,9 +13,25 @@ def main():
 
     while True:
         data = conn.readline().strip().decode()
+
+        if not data:
+            continue
+
+        tokens = data.split(",")
+        read_id, *temperatures = tokens
+
         now = datetime.now()
         now_str = now.strftime("%H:%M:%S")
-        print(f"{now_str} {data}")
+        print(f"{now_str} {read_id} {temperatures}")
+
+        for sensor_id, temperature in enumerate(temperatures):
+            push_measurement(
+                "temperature",
+                value=temperature,
+                tags={
+                    "sensor_id": sensor_id,
+                },
+            )
 
     conn.close()
 
