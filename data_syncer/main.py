@@ -11,6 +11,8 @@ def main():
     conn = serial.Serial(port=PORT, baudrate=BAUDRATE, timeout=TIMEOUT)
     print(f"connected to port {conn.name}")
 
+    last_read_id = None
+
     while True:
         data = conn.readline().strip().decode()
 
@@ -19,6 +21,10 @@ def main():
 
         tokens = data.split(",")
         read_id, *temperatures = tokens
+
+        if read_id == last_read_id:
+            continue
+        last_read_id = read_id
 
         now = datetime.now()
         now_str = now.strftime("%H:%M:%S")
