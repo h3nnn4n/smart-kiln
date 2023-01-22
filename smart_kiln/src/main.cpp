@@ -8,7 +8,7 @@ const int thermoCS = 5;
 const int thermoCLK = 6;
 
 // How long we wait before reading the sensors after each loop
-const int READ_INTERVAL = 2;  // Seconds
+const int READ_INTERVAL = 1;  // Seconds
 
 unsigned int counter = 0;
 
