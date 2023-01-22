@@ -1,7 +1,8 @@
-from datetime import datetime
+from datetime import datetime, timezone
+
+from influxdb import InfluxDBClient
 
 import config
-from influxdb import InfluxDBClient
 
 
 def push_measurement(name, value, tags=None):
@@ -42,7 +43,7 @@ def _ensure_timestamp(data):
     if data.get("time"):
         return
 
-    data["time"] = datetime.now().isoformat()
+    data["time"] = datetime.utcnow().replace(tzinfo=timezone.utc).isoformat()
 
 
 def _influxdb():
