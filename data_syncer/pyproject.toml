@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "data-syncer"
+version = "0.1.0"
+description = ""
+authors = ["h3nnn4n <git@h3nnn4n.me>"]
+license = "MIT"
+readme = "README.md"
+packages = [{include = "data_syncer"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+pyserial = "^3.5"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
