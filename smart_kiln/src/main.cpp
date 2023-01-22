@@ -1,18 +1,27 @@
 #include <Arduino.h>
 #include <Wire.h>
 
-void setup() {
-	Serial.begin(115200);
-	delay(1000);
+#include "max6675.h"
 
-	pinMode(13, OUTPUT);
+int thermoDO = 4;
+int thermoCS = 5;
+int thermoCLK = 6;
+
+MAX6675 thermocouple(thermoCLK, thermoCS, thermoDO);
+
+void setup() {
+    Serial.begin(9600);
+
+    Serial.println("MAX6675 test");
+
+    delay(500);
 }
 
 void loop() {
-	Serial.println("Hello world");
+	float temp = thermocouple.readCelsius();
 
-	digitalWrite(13, HIGH);
-	delay(1000);
-	digitalWrite(13, LOW);
-	delay(1000);
+    Serial.print("C = ");
+    Serial.println(temp);
+
+    delay(1000);
 }
