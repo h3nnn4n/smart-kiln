@@ -1,22 +1,18 @@
 #include <Arduino.h>
 #include <Wire.h>
-#include "BarLib.h"
-
-BarClass BarObject;
 
 void setup() {
-
 	Serial.begin(115200);
 	delay(1000);
 
+	pinMode(13, OUTPUT);
 }
 
 void loop() {
+	Serial.println("Hello world");
 
-	BarObject.firstBarMethod();
+	digitalWrite(13, HIGH);
 	delay(1000);
-	BarObject.secondBarMethod();
+	digitalWrite(13, LOW);
 	delay(1000);
-
 }
-
