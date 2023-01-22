@@ -25,6 +25,10 @@ def loop():
 
         if read_id == last_read_id:
             continue
+        if len(temperatures) == 0:
+            continue
+
+        measurements_taken += 1
         last_read_id = read_id
 
         now = datetime.now()
@@ -39,8 +43,6 @@ def loop():
                     "sensor_id": sensor_id,
                 },
             )
-
-        measurements_taken += 1
 
     if measurements_taken >= config.RESET_AFTER_N_MEASUREMENTS:
         print(f"took {measurements_taken} measurements. Limit is {config.RESET_AFTER_N_MEASUREMENTS}")
