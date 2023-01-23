@@ -11,6 +11,7 @@ def loop():
     conn = serial.Serial(port=PORT, baudrate=BAUDRATE, timeout=TIMEOUT)
     print(f"connected to port {conn.name}")
 
+    read_errors = 0
     last_read_id = None
     measurements_taken = 0
     last_read = datetime.now()
@@ -30,9 +31,13 @@ def loop():
         time_since_last_read = (now - last_read).total_seconds()
         push_measurement("time_since_last_read", value=time_since_last_read)
 
-        if read_id == last_read_id:
-            continue
-        if len(temperatures) == 0:
+        if read_id == last_read_id or len(temperatures) == 0:
+            print(f"read failed {read_errors}/{config.RESET_AFTER_N_ERRORS}")
+            read_errors += 1
+
+            if read_errors >= config.RESET_AFTER_N_ERRORS:
+                break
+
             continue
 
         measurements_taken += 1
@@ -62,6 +67,9 @@ def loop():
 
     if measurements_taken >= config.RESET_AFTER_N_MEASUREMENTS:
         print(f"took {measurements_taken} measurements. Limit is {config.RESET_AFTER_N_MEASUREMENTS}")
+
+    if read_errors >= config.RESET_AFTER_N_ERRORS:
+        print(f"Error limit is {config.RESET_AFTER_N_MEASUREMENTS}. Got {read_errors} errors")
 
     conn.close()
 

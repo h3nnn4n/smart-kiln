@@ -6,6 +6,7 @@ BAUDRATE = config("BAUDRATE", default=9600, cast=int)
 TIMEOUT = config("TIMEOUT", default=2, cast=int)
 
 RESET_AFTER_N_MEASUREMENTS = config("RESET_AFTER_N_MEASUREMENTS", default=30, cast=int)
+RESET_AFTER_N_ERRORS = config("RESET_AFTER_N_ERRORS", default=5, cast=int)
 
 MAX_TEMP_CHANGE = config("MAX_TEMP_CHANGE", default=25, cast=int)
 
