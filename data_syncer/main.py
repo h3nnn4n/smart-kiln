@@ -38,7 +38,7 @@ def loop():
         last_read = now
 
         now_str = now.strftime("%H:%M:%S")
-        print(f"{now_str} {measurements_taken:2}/{config.RESET_AFTER_N_MEASUREMENTS:2} {read_id} {temperatures} {time_since_last_read}s")
+        print(f"{now_str} {measurements_taken:2}/{config.RESET_AFTER_N_MEASUREMENTS:2} {read_id:2} {temperatures} {time_since_last_read}s")
 
         for sensor_id, temperature in enumerate(temperatures):
             push_measurement(
