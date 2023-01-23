@@ -15,6 +15,8 @@ def loop():
     measurements_taken = 0
     last_read = datetime.now()
 
+    temp_history = {}
+
     while measurements_taken < config.RESET_AFTER_N_MEASUREMENTS:
         data = conn.readline().strip().decode()
 
@@ -41,9 +43,18 @@ def loop():
         print(f"{now_str} {measurements_taken:2}/{config.RESET_AFTER_N_MEASUREMENTS:2} {read_id:2} {temperatures} {time_since_last_read}s")
 
         for sensor_id, temperature in enumerate(temperatures):
+            temperature = float(temperature)
+            if sensor_id not in temp_history:
+                temp_history[sensor_id] = temperature
+            else:
+                delta_temp = abs(temperature - temp_history[sensor_id])
+                if delta_temp > config.MAX_TEMP_CHANGE:
+                    print(f"WARN: temp changed {delta_temp}c in {time_since_last_read}s (from {temp_history[sensor_id]}c to {temperature}c  SKIPPING")
+                    continue
+
             push_measurement(
                 "temperature",
-                value=float(temperature),
+                value=temperature,
                 tags={
                     "sensor_id": sensor_id,
                 },
