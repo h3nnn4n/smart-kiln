@@ -13,6 +13,7 @@ def loop():
 
     last_read_id = None
     measurements_taken = 0
+    last_read = datetime.now()
 
     while measurements_taken < config.RESET_AFTER_N_MEASUREMENTS:
         data = conn.readline().strip().decode()
@@ -23,6 +24,10 @@ def loop():
         tokens = data.split(",")
         read_id, *temperatures = tokens
 
+        now = datetime.now()
+        time_since_last_read = (now - last_read).total_seconds()
+        push_measurement("time_since_last_read", value=time_since_last_read)
+
         if read_id == last_read_id:
             continue
         if len(temperatures) == 0:
@@ -30,10 +35,10 @@ def loop():
 
         measurements_taken += 1
         last_read_id = read_id
+        last_read = now
 
-        now = datetime.now()
         now_str = now.strftime("%H:%M:%S")
-        print(f"{now_str} {measurements_taken:2}/{config.RESET_AFTER_N_MEASUREMENTS:2} {read_id} {temperatures}")
+        print(f"{now_str} {measurements_taken:2}/{config.RESET_AFTER_N_MEASUREMENTS:2} {read_id} {temperatures} {time_since_last_read}s")
 
         for sensor_id, temperature in enumerate(temperatures):
             push_measurement(
