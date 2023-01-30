@@ -48,6 +48,10 @@ def loop():
         print(f"{now_str} {measurements_taken:2}/{config.RESET_AFTER_N_MEASUREMENTS:2} {read_id:2} {temperatures} {time_since_last_read}s")
 
         for sensor_id, temperature in enumerate(temperatures):
+            if temperature == "nan":
+                print(f"WARN: sensor {sensor_id} is open")
+                continue
+
             temperature = float(temperature)
             if sensor_id not in temp_history:
                 temp_history[sensor_id] = temperature
