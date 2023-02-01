@@ -3,33 +3,44 @@
 
 #include "max6675.h"
 
-const int thermoDO = 4;
-const int thermoCS = 5;
-const int thermoCLK = 6;
+const int common_CLK = 4;
+const int common_DO = 5;
+
+const int sensor1_CS = 6;
+const int sensor2_CS = 7;
+const int sensor3_CS = 8;
 
 // How long we wait before reading the sensors after each loop
-const int READ_INTERVAL = 1;  // Seconds
+const int LOOP_INTERVAL = 1;  // Seconds
 
 unsigned int counter = 0;
 
-MAX6675 thermocouple(thermoCLK, thermoCS, thermoDO);
+MAX6675 sensor1(common_CLK, sensor1_CS, common_DO);
+MAX6675 sensor2(common_CLK, sensor2_CS, common_DO);
+MAX6675 sensor3(common_CLK, sensor3_CS, common_DO);
 
 void setup() {
     Serial.begin(9600);
 
-    Serial.println("MAX6675 test");
+    Serial.println("Smart kiln init");
 
     delay(500);
 }
 
 void loop() {
-    float temp = thermocouple.readCelsius();
+    float t1 = sensor1.readCelsius();
+    float t2 = sensor2.readCelsius();
+    float t3 = sensor3.readCelsius();
 
     Serial.print(counter);
     Serial.print(",");
-    Serial.print(temp);
+    Serial.print(t1);
+    Serial.print(",");
+    Serial.print(t2);
+    Serial.print(",");
+    Serial.print(t3);
     Serial.println();
 
     counter++;
-    delay(READ_INTERVAL * 1000);
+    delay(LOOP_INTERVAL * 1000);
 }
