@@ -1,3 +1,4 @@
+import typing as t
 from datetime import datetime
 
 import serial
@@ -7,8 +8,12 @@ from config import BAUDRATE, PORT, TIMEOUT
 from metrics import push_measurement
 
 
-def loop():
-    conn = serial.Serial(port=PORT, baudrate=BAUDRATE, timeout=TIMEOUT)
+def loop(port: t.Optional[str]):
+    conn = serial.Serial(
+        port=port,
+        baudrate=BAUDRATE,
+        timeout=TIMEOUT,
+    )
     print(f"connected to port {conn.name}")
 
     read_errors = 0
@@ -45,7 +50,9 @@ def loop():
         last_read = now
 
         now_str = now.strftime("%H:%M:%S")
-        print(f"{now_str} {measurements_taken:2}/{config.RESET_AFTER_N_MEASUREMENTS:2} {read_id:2} {temperatures} {time_since_last_read}s")
+        print(
+            f"{now_str} {measurements_taken:2}/{config.RESET_AFTER_N_MEASUREMENTS:2} {read_id:2} {temperatures} {time_since_last_read}s"
+        )
 
         for sensor_id, temperature in enumerate(temperatures):
             if temperature == "nan":
@@ -58,7 +65,9 @@ def loop():
             else:
                 delta_temp = abs(temperature - temp_history[sensor_id])
                 if delta_temp > config.MAX_TEMP_CHANGE:
-                    print(f"WARN: temp changed {delta_temp}c in {time_since_last_read}s (from {temp_history[sensor_id]}c to {temperature}c  SKIPPING")
+                    print(
+                        f"WARN: temp changed {delta_temp}c in {time_since_last_read}s (from {temp_history[sensor_id]}c to {temperature}c  SKIPPING"
+                    )
                     continue
 
             push_measurement(
@@ -70,17 +79,26 @@ def loop():
             )
 
     if measurements_taken >= config.RESET_AFTER_N_MEASUREMENTS:
-        print(f"took {measurements_taken} measurements. Limit is {config.RESET_AFTER_N_MEASUREMENTS}")
+        print(
+            f"took {measurements_taken} measurements. Limit is {config.RESET_AFTER_N_MEASUREMENTS}"
+        )
 
     if read_errors >= config.RESET_AFTER_N_ERRORS:
-        print(f"Error limit is {config.RESET_AFTER_N_MEASUREMENTS}. Got {read_errors} errors")
+        print(
+            f"Error limit is {config.RESET_AFTER_N_MEASUREMENTS}. Got {read_errors} errors"
+        )
 
     conn.close()
 
 
+def find_port() -> str:
+    return PORT
+
+
 def main():
+    port = find_port()
     while True:
-        loop()
+        loop(port=port)
 
 
 if __name__ == "__main__":
