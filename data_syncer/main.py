@@ -1,4 +1,7 @@
 import typing as t
+from os import listdir
+from os.path import join
+
 from datetime import datetime
 
 import serial
@@ -92,7 +95,20 @@ def loop(port: t.Optional[str]):
 
 
 def find_port() -> str:
-    return PORT
+    dev_dir = "/dev/"
+    all_dev_files = [join(dev_dir, f) for f in listdir(dev_dir)]
+    usb_devs = [f for f in all_dev_files if "ttyUSB" in f]
+    print(f"found {usb_devs=}")
+
+    match len(usb_devs):
+        case 0:
+            print(f"found no match for ttyUSB, using default {PORT=}")
+            return PORT
+        case 1:
+            return usb_devs[0]
+        case _:
+            print(f"WARNING found {len(usb_devs)}, picking first one")
+            return usb_devs[0]
 
 
 def main():
