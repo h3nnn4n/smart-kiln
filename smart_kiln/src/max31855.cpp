@@ -59,10 +59,12 @@ MAX31855::MAX31855(unsigned char SO, unsigned	char CS, unsigned char SCK)
 double	MAX31855::readThermocouple(unit_t	unit)
 {
 	unsigned long data;
+	unsigned long v;
 	double temperature;
 
 	// Initialize temperature
 	temperature = 0;
+	v = 0;
 
 	// Shift in 32-bit of data from MAX31855
 	data = readData();
@@ -75,52 +77,47 @@ double	MAX31855::readThermocouple(unit_t	unit)
 		{
 			// Open circuit
 			case 0x01:
-				temperature = FAULT_OPEN;
-				break;
+				return FAULT_OPEN;
 
 			// Thermocouple short to GND
 			case 0x02:
-				temperature = FAULT_SHORT_GND;
-				break;
+				return FAULT_SHORT_GND;
 
 			// Thermocouple short to VCC
 			case 0x04:
-				temperature = FAULT_SHORT_VCC;
-				break;
+				return FAULT_SHORT_VCC;
 		}
 	}
-	// No fault detected
-	else
+
+	// Retrieve thermocouple temperature data and strip redundant data
+	data = data >> 18;
+	// Bit-14 is the sign
+	v = (data & 0x00001FFF);
+
+	// Check for negative temperature
+	if (data & 0x00002000)
 	{
-		// Retrieve thermocouple temperature data and strip redundant data
-		data = data >> 18;
-		// Bit-14 is the sign
-		temperature = (data & 0x00001FFF);
-
-		// Check for negative temperature
-		if (data & 0x00002000)
-		{
-			// 2's complement operation
-			// Invert
-			data = ~data;
-			// Ensure operation involves lower 13-bit only
-			temperature = data & 0x00001FFF;
-			// Add 1 to obtain the positive number
-			temperature += 1;
-			// Make temperature negative
-			temperature *= -1;
-		}
-
-		// Convert to Degree Celsius
-		temperature *= 0.25;
-
-		// If temperature unit in Fahrenheit is desired
-		if (unit == FAHRENHEIT)
-		{
-			// Convert Degree Celsius to Fahrenheit
-			temperature = (temperature * 9.0/5.0)+ 32;
-		}
+		// 2's complement operation
+		// Invert
+		data = ~data;
+		// Ensure operation involves lower 13-bit only
+		v = data & 0x00001FFF;
+		// Add 1 to obtain the positive number
+		v += 1;
+		// Make temperature negative
+		v *= -1;
 	}
+
+	// Convert to Degree Celsius
+	temperature = v * 0.25;
+
+	// If temperature unit in Fahrenheit is desired
+	if (unit == FAHRENHEIT)
+	{
+		// Convert Degree Celsius to Fahrenheit
+		temperature = (temperature * 9.0/5.0)+ 32;
+	}
+
 	return (temperature);
 }
 
