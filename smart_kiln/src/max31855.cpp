@@ -68,6 +68,7 @@ double	MAX31855::readThermocouple(unit_t	unit)
 
 	// Shift in 32-bit of data from MAX31855
 	data = readData();
+	Serial.println(data, BIN);
 
 	// If fault is detected
 	if (data & 0x00010000)
@@ -87,12 +88,17 @@ double	MAX31855::readThermocouple(unit_t	unit)
 			case 0x04:
 				return FAULT_SHORT_VCC;
 		}
+
+		return FAULT_OPEN;
 	}
 
 	// Retrieve thermocouple temperature data and strip redundant data
 	data = data >> 18;
+	Serial.println(data, BIN);
 	// Bit-14 is the sign
 	v = (data & 0x00001FFF);
+	Serial.println(data, BIN);
+	Serial.println(v * 0.25);
 
 	// Check for negative temperature
 	if (data & 0x00002000)
@@ -118,7 +124,7 @@ double	MAX31855::readThermocouple(unit_t	unit)
 		temperature = (temperature * 9.0/5.0)+ 32;
 	}
 
-	return (temperature);
+	return temperature;
 }
 
 /*******************************************************************************
@@ -205,9 +211,15 @@ unsigned long MAX31855::readData()
 	digitalWrite(cs, LOW);
     delayMicroseconds(10);
 
+	Serial.println();
+	Serial.println();
+
 	// Shift in 32-bit of data
 	for (bitCount = 31; bitCount >= 0; bitCount--)
 	{
+		Serial.print("bit: ");
+		Serial.print(bitCount);
+
 		digitalWrite(sck, HIGH);
 		delayMicroseconds(10);
 
@@ -219,9 +231,15 @@ unsigned long MAX31855::readData()
 			data |= ((unsigned long)1 << bitCount);
 		}
 
+		Serial.print("   ");
+		Serial.print(data, BIN);
+		Serial.println();
+
 		digitalWrite(sck, LOW);
 		delayMicroseconds(10);
 	}
+
+	Serial.println();
 
 	// Deselect MAX31855 chip
 	digitalWrite(cs, HIGH);
