@@ -86,7 +86,7 @@ void loop() {
 		Serial.print(",");
 		Serial.print(t2);
 		Serial.print(",");
-		Serial.print(pid_output);
+		Serial.print(t3);
 		Serial.println();
 
 		counter++;
