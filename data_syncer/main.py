@@ -1,50 +1,14 @@
 import typing as t
+from datetime import datetime
 from os import listdir
 from os.path import join
-
-from datetime import datetime
 
 import serial
 
 import config
 from config import BAUDRATE, PORT, TIMEOUT
 from metrics import push_measurement
-
-
-def read_pid(conn):
-    conn.writelines(["READ_PID".encode()])
-    data = conn.readline().strip().decode()
-
-    if data[:3] != "PID":
-        print("WARN: Data received didnt start with PID! got:")
-        print(data)
-        return
-
-    tokens = data[4:].split(";")
-    for token in tokens:
-        key,_, value = token.partition("=")
-        value = float(value)
-
-        if key in ["kp", "kd", "ki"]:
-            metric_name = "pid_param"
-        else:
-            metric_name = "pid_state"
-
-        push_measurement(
-            metric_name,
-            value=value,
-            tags={
-                "pid": True,
-                "key": key,
-            },
-        )
-        print(f"{key}={value}")
-
-
-def set_var(conn, key, value):
-    conn.writelines([f"SET {key}={value}".encode()])
-    data = conn.readline().strip().decode()
-    print(data)
+from state import State
 
 
 def ping(conn):
@@ -63,25 +27,23 @@ def loop(port: t.Optional[str]):
         baudrate=BAUDRATE,
         timeout=TIMEOUT,
     )
+
     print(f"connected to port {conn.name}")
 
     read_errors = 0
     last_read_id = None
     measurements_taken = 0
     last_read = datetime.now()
+    state = State(conn)
 
     temp_history = {}
 
     ping(conn)
 
-    set_var(conn, "setpoint", 125.0)
-    set_var(conn, "kp", 12.5)
-    set_var(conn, "kd", 7)
-    set_var(conn, "ki", 0)
-    set_var(conn, "pid_enabled", 0)
+    state.full_sync()
 
     while measurements_taken < config.RESET_AFTER_N_MEASUREMENTS:
-        read_pid(conn)
+        state.update()
 
         conn.writelines(["READ_TEMP".encode()])
         data = conn.readline().strip().decode()
