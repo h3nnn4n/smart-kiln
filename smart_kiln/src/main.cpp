@@ -48,24 +48,21 @@ MAX6675 sensor2(common_CLK, sensor2_CS, common_DO);
 MAX6675 sensor3(common_CLK, sensor3_CS, common_DO);
 
 void setup() {
+    Serial.begin(9600);
+
+	now = millis();
 	serial_out_timer = millis();
 	sensor_read_timer = millis();
 
-    Serial.begin(9600);
-
-    Serial.println("Smart kiln init");
-
     pinMode(SSR, OUTPUT);
-    digitalWrite(SSR, LOW);
+	analogWrite(SSR, 0);
 
 	pid.SetMode(pid_enabled);
 	pid.SetOutputLimits(0.0, 255.0);
 
     delay(500);
 
-    digitalWrite(SSR, HIGH);
-
-	now = millis();
+    Serial.println("BEGIN");
 }
 
 void log_pid_data() {
@@ -137,6 +134,10 @@ void set_cmd(String cmd) {
 	} else if (key == "pid_enabled") {
 		pid_enabled = value;
 		pid.SetMode(pid_enabled);
+
+		if (!pid_enabled) {
+			analogWrite(SSR, 0);
+		}
 	}
 
 	Serial.print("SET ");
