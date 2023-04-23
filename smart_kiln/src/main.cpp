@@ -15,6 +15,8 @@ const int sensor4_CS = 9;
 // The Solid State Relay pin
 const int SSR = 3;
 
+unsigned long now;
+
 // How long we wait before sending the data to the logger
 const int SERIAL_OUT_INTERVAL = 1 * 1000;
 unsigned long serial_out_timer = 0;
@@ -60,23 +62,28 @@ void setup() {
     delay(500);
 
     digitalWrite(SSR, HIGH);
+
+	now = millis();
 }
 
-void loop() {
-	unsigned long now = millis();
-
+void read_pid_temp() {
 	if ((now - sensor_read_timer) > SENSOR_READ_INTERVAL) {
 		t1 = sensor1.readCelsius();
 
 		pid_input = t1;
 		sensor_read_timer = now;
 	}
+}
 
+void pid_loop() {
 	if (pid.Compute()) {
 		analogWrite(SSR, pid_output);
 	}
+}
 
+void log_temps() {
 	if ((now - serial_out_timer) > SERIAL_OUT_INTERVAL) {
+		t1 = sensor1.readCelsius();
 		t2 = sensor2.readCelsius();
 		t3 = sensor3.readCelsius();
 
@@ -92,4 +99,12 @@ void loop() {
 		counter++;
 		serial_out_timer = now;
 	}
+}
+
+void loop() {
+	now = millis();
+
+	read_pid_temp();
+	pid_loop();
+	log_temps();
 }
