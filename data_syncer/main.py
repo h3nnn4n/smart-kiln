@@ -41,6 +41,12 @@ def read_pid(conn):
         print(f"{key}={value}")
 
 
+def set_var(conn, key, value):
+    conn.writelines([f"SET {key}={value}".encode()])
+    data = conn.readline().strip().decode()
+    print(data)
+
+
 def loop(port: t.Optional[str]):
     conn = serial.Serial(
         port=port,
@@ -55,6 +61,11 @@ def loop(port: t.Optional[str]):
     last_read = datetime.now()
 
     temp_history = {}
+
+    set_var(conn, "setpoint", 125.0)
+    set_var(conn, "kp", 12.5)
+    set_var(conn, "kd", 7)
+    set_var(conn, "ki", 0)
 
     while measurements_taken < config.RESET_AFTER_N_MEASUREMENTS:
         read_pid(conn)

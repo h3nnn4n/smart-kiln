@@ -115,6 +115,29 @@ void log_temps() {
 	serial_out_timer = now;
 }
 
+void set_cmd(String cmd) {
+	int separator_index = cmd.indexOf("=");
+	String key = cmd.substring(0, separator_index);
+	String value_str = cmd.substring(separator_index + 1);
+	float value = value_str.toFloat();
+
+	if (key == "setpoint") {
+		pid_setpoint = value;
+	} else if (key == "kp") {
+		pid_kp = value;
+	} else if (key == "kd") {
+		pid_kd = value;
+	} else if (key == "ki") {
+		pid_ki = value;
+	}
+
+	Serial.print("SET ");
+	Serial.print(key);
+	Serial.print("=");
+	Serial.print(value);
+	Serial.println();
+}
+
 void read_serial() {
 	if (!Serial.available()) return;
 	String cmd = Serial.readString();
@@ -124,6 +147,8 @@ void read_serial() {
 		log_pid_data();
 	} else if (cmd == "READ_TEMP") {
 		log_temps();
+	} else if (cmd.startsWith("SET ")) {
+		set_cmd(cmd.substring(4));
 	}
 }
 
