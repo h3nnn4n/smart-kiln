@@ -66,6 +66,22 @@ void setup() {
 	now = millis();
 }
 
+void log_pid_data() {
+	Serial.print("PID:");
+	Serial.print(pid_input);
+	Serial.print(",");
+	Serial.print(pid_output);
+	Serial.print(",");
+	Serial.print(pid_setpoint);
+	Serial.print(",");
+	Serial.print(pid_kp);
+	Serial.print(",");
+	Serial.print(pid_kd);
+	Serial.print(",");
+	Serial.print(pid_ki);
+	Serial.println();
+}
+
 void read_pid_temp() {
 	if ((now - sensor_read_timer) > SENSOR_READ_INTERVAL) {
 		t1 = sensor1.readCelsius();
@@ -82,22 +98,31 @@ void pid_loop() {
 }
 
 void log_temps() {
-	if ((now - serial_out_timer) > SERIAL_OUT_INTERVAL) {
-		t1 = sensor1.readCelsius();
-		t2 = sensor2.readCelsius();
-		t3 = sensor3.readCelsius();
+	t1 = sensor1.readCelsius();
+	t2 = sensor2.readCelsius();
+	t3 = sensor3.readCelsius();
 
-		Serial.print(counter);
-		Serial.print(",");
-		Serial.print(t1);
-		Serial.print(",");
-		Serial.print(t2);
-		Serial.print(",");
-		Serial.print(t3);
-		Serial.println();
+	Serial.print(counter);
+	Serial.print(",");
+	Serial.print(t1);
+	Serial.print(",");
+	Serial.print(t2);
+	Serial.print(",");
+	Serial.print(t3);
+	Serial.println();
 
-		counter++;
-		serial_out_timer = now;
+	counter++;
+	serial_out_timer = now;
+}
+
+void read_serial() {
+	if (!Serial.available()) return;
+	String cmd = Serial.readString();
+
+	if (cmd == "READ_PID") {
+		log_pid_data();
+	} else if (cmd == "READ_TEMP") {
+		log_temps();
 	}
 }
 
@@ -106,5 +131,6 @@ void loop() {
 
 	read_pid_temp();
 	pid_loop();
-	log_temps();
+
+	read_serial();
 }

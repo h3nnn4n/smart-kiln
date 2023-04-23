@@ -11,6 +11,12 @@ from config import BAUDRATE, PORT, TIMEOUT
 from metrics import push_measurement
 
 
+def read_pid(conn):
+    conn.writelines(["READ_PID".encode()])
+    data = conn.readline().strip().decode()
+    print(data)
+
+
 def loop(port: t.Optional[str]):
     conn = serial.Serial(
         port=port,
@@ -27,6 +33,9 @@ def loop(port: t.Optional[str]):
     temp_history = {}
 
     while measurements_taken < config.RESET_AFTER_N_MEASUREMENTS:
+        read_pid(conn)
+
+        conn.writelines(["READ_TEMP".encode()])
         data = conn.readline().strip().decode()
 
         if not data:
