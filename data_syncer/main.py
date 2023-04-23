@@ -47,6 +47,16 @@ def set_var(conn, key, value):
     print(data)
 
 
+def ping(conn):
+    while True:
+        conn.writelines(["PING".encode()])
+        data = conn.readline().strip().decode()
+        print(data)
+
+        if data == "PONG":
+            return
+
+
 def loop(port: t.Optional[str]):
     conn = serial.Serial(
         port=port,
@@ -61,6 +71,8 @@ def loop(port: t.Optional[str]):
     last_read = datetime.now()
 
     temp_history = {}
+
+    ping(conn)
 
     set_var(conn, "setpoint", 125.0)
     set_var(conn, "kp", 12.5)

@@ -156,6 +156,8 @@ void read_serial() {
 		log_pid_data();
 	} else if (cmd == "READ_TEMP") {
 		log_temps();
+	} else if (cmd == "PING") {
+		Serial.println("PONG");
 	} else if (cmd.startsWith("SET ")) {
 		set_cmd(cmd.substring(4));
 	}
