@@ -67,17 +67,17 @@ void setup() {
 }
 
 void log_pid_data() {
-	Serial.print("PID:");
+	Serial.print("PID:input=");
 	Serial.print(pid_input);
-	Serial.print(",");
+	Serial.print(";output=");
 	Serial.print(pid_output);
-	Serial.print(",");
+	Serial.print(";setpoint=");
 	Serial.print(pid_setpoint);
-	Serial.print(",");
+	Serial.print(";kp=");
 	Serial.print(pid_kp);
-	Serial.print(",");
+	Serial.print(";kd=");
 	Serial.print(pid_kd);
-	Serial.print(",");
+	Serial.print(";ki=");
 	Serial.print(pid_ki);
 	Serial.println();
 }

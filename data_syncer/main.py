@@ -14,7 +14,31 @@ from metrics import push_measurement
 def read_pid(conn):
     conn.writelines(["READ_PID".encode()])
     data = conn.readline().strip().decode()
-    print(data)
+
+    if data[:3] != "PID":
+        print("WARN: Data received didnt start with PID! got:")
+        print(data)
+        return
+
+    tokens = data[4:].split(";")
+    for token in tokens:
+        key,_, value = token.partition("=")
+        value = float(value)
+
+        if key in ["kp", "kd", "ki"]:
+            metric_name = "pid_param"
+        else:
+            metric_name = "pid_state"
+
+        push_measurement(
+            metric_name,
+            value=value,
+            tags={
+                "pid": True,
+                "key": key,
+            },
+        )
+        print(f"{key}={value}")
 
 
 def loop(port: t.Optional[str]):
