@@ -1,4 +1,5 @@
 from datetime import datetime, timezone
+from threading import Thread
 
 from influxdb import InfluxDBClient
 
@@ -25,7 +26,11 @@ def push(data):
         data = [data]
 
     _ensure_timestamp(data)
-    _push(data)
+
+    if config.ASYNC_METRICS:
+        Thread(target=_push, args=(data,)).start()
+    else:
+        _push(data)
 
 
 def _push(data):

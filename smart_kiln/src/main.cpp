@@ -118,6 +118,7 @@ void log_temps() {
 void read_serial() {
 	if (!Serial.available()) return;
 	String cmd = Serial.readString();
+	cmd.trim();
 
 	if (cmd == "READ_PID") {
 		log_pid_data();
