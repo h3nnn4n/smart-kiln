@@ -2,7 +2,7 @@ from decouple import config
 
 
 PORT = config("PORT")
-BAUDRATE = config("BAUDRATE", default=9600, cast=int)
+BAUDRATE = config("BAUDRATE", default=115200, cast=int)
 TIMEOUT = config("TIMEOUT", default=2, cast=int)
 
 RESET_AFTER_N_MEASUREMENTS = config("RESET_AFTER_N_MEASUREMENTS", default=600, cast=int)

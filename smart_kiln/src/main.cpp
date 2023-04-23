@@ -48,7 +48,7 @@ MAX6675 sensor2(common_CLK, sensor2_CS, common_DO);
 MAX6675 sensor3(common_CLK, sensor3_CS, common_DO);
 
 void setup() {
-    Serial.begin(9600);
+    Serial.begin(115200);
 
 	now = millis();
 	serial_out_timer = millis();
