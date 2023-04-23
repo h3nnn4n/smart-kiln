@@ -56,7 +56,7 @@ void setup() {
     pinMode(SSR, OUTPUT);
     digitalWrite(SSR, LOW);
 
-	pid.SetMode(1);  // Enable pid
+	pid.SetMode(0);
 	pid.SetOutputLimits(0.0, 255.0);
 
     delay(500);
