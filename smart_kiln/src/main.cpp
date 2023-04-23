@@ -27,9 +27,9 @@ unsigned int counter = 0;
 
 double pid_input;
 double pid_output;
-double pid_setpoint = 125.0f;
-double pid_kp = 7.5f;
-double pid_ki = 0.0f;
+double pid_setpoint = 175.0f;
+double pid_kp = 10.0f;
+double pid_ki = 7.5f;
 double pid_kd = 0.0f;
 
 float t1 = 0;
