@@ -14,8 +14,8 @@ ARDUINO_DIR       = /usr/share/arduino
 ### Path to where the your project's libraries are stored.
 USER_LIB_PATH     :=  $(realpath $(PROJECT_DIR)/lib)
 
-BOARD_TAG         = uno
-BOARD_SUB         = foo
+BOARD_TAG         = mega
+BOARD_SUB         = atmega2560
 
 ### MONITOR_PORT
 ### The port your board is connected to. Using an '*' tries all the ports and finds the right one. Choose one of the two.
