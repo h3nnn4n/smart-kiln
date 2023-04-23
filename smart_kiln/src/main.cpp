@@ -34,6 +34,8 @@ double pid_kp = 10.0f;
 double pid_ki = 0.0f;
 double pid_kd = 7.5f;
 
+bool pid_enabled = false;
+
 float t1 = 0;
 float t2 = 0;
 float t3 = 0;
@@ -56,7 +58,7 @@ void setup() {
     pinMode(SSR, OUTPUT);
     digitalWrite(SSR, LOW);
 
-	pid.SetMode(0);
+	pid.SetMode(pid_enabled);
 	pid.SetOutputLimits(0.0, 255.0);
 
     delay(500);
@@ -67,7 +69,10 @@ void setup() {
 }
 
 void log_pid_data() {
-	Serial.print("PID:input=");
+	Serial.print("PID:");
+	Serial.print("enabled=");
+	Serial.print(int(pid_enabled));
+	Serial.print(";input=");
 	Serial.print(pid_input);
 	Serial.print(";output=");
 	Serial.print(pid_output);
@@ -129,6 +134,9 @@ void set_cmd(String cmd) {
 		pid_kd = value;
 	} else if (key == "ki") {
 		pid_ki = value;
+	} else if (key == "pid_enabled") {
+		pid_enabled = value;
+		pid.SetMode(pid_enabled);
 	}
 
 	Serial.print("SET ");

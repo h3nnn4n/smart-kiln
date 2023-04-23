@@ -66,6 +66,7 @@ def loop(port: t.Optional[str]):
     set_var(conn, "kp", 12.5)
     set_var(conn, "kd", 7)
     set_var(conn, "ki", 0)
+    set_var(conn, "pid_enabled", 0)
 
     while measurements_taken < config.RESET_AFTER_N_MEASUREMENTS:
         read_pid(conn)
