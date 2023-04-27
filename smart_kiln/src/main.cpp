@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include <EEPROM.h>
 #include <Wire.h>
 
 #include "max6675.h"
@@ -29,16 +30,20 @@ unsigned int counter = 0;
 
 double pid_input;
 double pid_output;
-double pid_setpoint = 175.0f;
-double pid_kp = 10.0f;
-double pid_ki = 0.0f;
-double pid_kd = 7.5f;
+double pid_setpoint = 0.0f;
+double pid_kp;
+double pid_ki;
+double pid_kd;
 
 bool pid_enabled = false;
 
 float t1 = 0;
 float t2 = 0;
 float t3 = 0;
+
+unsigned int PID_KP_ADDR = 0;
+unsigned int PID_KI_ADDR = 4;
+unsigned int PID_KD_ADDR = 8;
 
 
 PID pid(&pid_input, &pid_output, &pid_setpoint, pid_kp, pid_ki, pid_kd, 0);
@@ -59,6 +64,10 @@ void setup() {
 
 	pid.SetMode(pid_enabled);
 	pid.SetOutputLimits(0.0, 255.0);
+
+	EEPROM.get(PID_KP_ADDR, pid_kp);
+	EEPROM.get(PID_KI_ADDR, pid_ki);
+	EEPROM.get(PID_KD_ADDR, pid_kd);
 
     delay(500);
 
@@ -127,10 +136,13 @@ void set_cmd(String cmd) {
 		pid_setpoint = value;
 	} else if (key == "kp") {
 		pid_kp = value;
+		EEPROM.put(PID_KP_ADDR, pid_kp);
 	} else if (key == "kd") {
 		pid_kd = value;
+		EEPROM.put(PID_KD_ADDR, pid_kd);
 	} else if (key == "ki") {
 		pid_ki = value;
+		EEPROM.put(PID_KI_ADDR, pid_ki);
 	} else if (key == "pid_enabled") {
 		pid_enabled = value;
 		pid.SetMode(pid_enabled);
