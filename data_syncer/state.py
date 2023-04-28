@@ -54,9 +54,7 @@ class State:
         read_pid(self.conn)
 
     def delta_sync(self):
-        state = read_state_file()
-
-        for key, value in state.items():
+        for key, value in self.state.items():
             value = float(value)
 
             if getattr(self, key) != value:
@@ -67,20 +65,36 @@ class State:
         """
         Syncs the full state of the kiln PID controller
         """
-        state = read_state_file()
-
-        for key, value in state.items():
+        for key, value in self.state.items():
             value = float(value)
             setattr(self, key, value)
             set_var(self.conn, key, value)
 
         read_pid(self.conn)
 
+    @property
+    def state(self):
+        state = read_state_file()
+        state.update(read_temp_file())
+        return state
+
 
 def read_state_file():
     data = {}
 
     with open("state.txt", "rt") as f:
+        for line in f.readlines():
+            line = line.strip()
+            key, _, value = line.partition("=")
+            data[key] = value
+
+    return data
+
+
+def read_temp_file():
+    data = {}
+
+    with open("temp.txt", "rt") as f:
         for line in f.readlines():
             line = line.strip()
             key, _, value = line.partition("=")
