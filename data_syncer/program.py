@@ -10,6 +10,7 @@ from time import sleep
 import matplotlib.pyplot as plt  # type:ignore
 import seaborn as sns  # type:ignore
 
+
 PROGRAM_UPDATE_INTERVAL = timedelta(seconds=60)
 sns.set_style("whitegrid")
 
