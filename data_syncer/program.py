@@ -101,8 +101,8 @@ class ProgramState:
 
     def _write_setpoint(self, temperature: float) -> None:
         with open("setpoint.txt", "wt") as f:
-            f.write(f"setpoint={temperature}")
-            f.write("\n")
+            f.write(f"setpoint={temperature}\n")
+            f.write("pid_enabled=1.0\n")
 
     def _calculate_temperature(self, time: timedelta) -> float:
         for time1, time2 in itertools.pairwise(self.program.keys()):
