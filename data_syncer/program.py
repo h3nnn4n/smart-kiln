@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 
-from time import sleep
 import argparse
 import itertools
-from pathlib import Path
 import sys
 from datetime import datetime, timedelta
+from pathlib import Path
+from time import sleep
 
 import matplotlib.pyplot as plt  # type:ignore
 import seaborn as sns  # type:ignore
@@ -15,11 +15,8 @@ sns.set_style("whitegrid")
 
 
 class ProgramState:
-    def __init__(self, filename: str, preview_mode: bool = True):
-        self.filename = filename
-        print(f"firing schedule: {self.program_name}")
-
-        self.program = read_program(filename)
+    def __init__(self, program: dict[timedelta, int], preview_mode: bool = True):
+        self.program = program
         self.preview_mode = preview_mode
 
         # These are actual timestamps
@@ -31,11 +28,8 @@ class ProgramState:
         self.program_timer = timedelta(seconds=0)
         self.end_time_offset = self._calculate_end_offset()
 
-    @property
-    def program_name(self):
-        base_filename = Path(self.filename).name
-        program_name, _, _ = base_filename.partition(".")
-        return program_name
+        self.x: list[datetime] = []
+        self.y: list[float] = []
 
     def _update_timer(self):
         """
@@ -52,28 +46,37 @@ class ProgramState:
         self.now += PROGRAM_UPDATE_INTERVAL
         self.program_timer += PROGRAM_UPDATE_INTERVAL
 
-    def run(self):
-        x = []
-        y = []
-
-        while self.now < self.end_time:
-            self._update_timer()
-
-            target_temp = self._calculate_temperature(self.program_timer)
-
-            if not self.preview_mode:
-                self._write_setpoint(target_temp)
-                print(f"{self.now} {target_temp:6.2f}c")
-
+    def update(self) -> bool:
+        """
+        Steps the firing schedule. Blocks until the next update. Returns
+        `False` when the program completes and `True` while the program still
+        running.
+        """
+        done = self.now > self.end_time
+        if done:
             if self.preview_mode:
-                x.append(self.now)
-                y.append(target_temp)
+                self._save_plot()
+            return False
+
+        self._update_timer()
+
+        target_temp = self._calculate_temperature(self.program_timer)
+
+        if not self.preview_mode:
+            self._write_setpoint(target_temp)
+            print(f"{self.now} {target_temp:6.2f}c")
 
         if self.preview_mode:
-            sns.lineplot(x=x, y=y)
-            sns.despine(trim=True)
-            plt.xticks(rotation=20, ha="right")
-            plt.savefig("plot.png")
+            self.x.append(self.now)
+            self.y.append(target_temp)
+
+        return True
+
+    def _save_plot(self) -> None:
+        sns.lineplot(x=self.x, y=self.y)
+        sns.despine(trim=True)
+        plt.xticks(rotation=20, ha="right")
+        plt.savefig("plot.png")
 
     def _calculate_end_offset(self):
         return max(list(self.program.keys()))
@@ -108,7 +111,7 @@ def main():
         prog="SmartKiln - Firing Schedule",
         description="Reads a firing schedule and forwards it to the kiln",
     )
-    parser.add_argument("filename", help="File with the firing schedule")
+    parser.add_argument("filepath", help="File with the firing schedule")
     parser.add_argument("--preview", action="store_true")
     parser.add_argument("--start", action="store_true")
     args = parser.parse_args()
@@ -117,20 +120,30 @@ def main():
         print("can't preview and start at the same time")
         sys.exit(1)
 
+    program = read_program(args.filepath)
     program_state = ProgramState(
-        filename=args.filename,
+        program=program,
         preview_mode=args.preview,
     )
-    program_state.run()
+
+    while program_state.update():
+        pass
 
 
-def read_program(filename: str) -> dict[timedelta, int]:
+def program_name(filepath: str) -> str:
+    filename = Path(filepath).name
+    program_name, _, _ = filename.partition(".")
+    return program_name
+
+
+def read_program(filepath: str) -> dict[timedelta, int]:
     temps = {}
 
-    print(f"reading from {filename}")
+    print(f"firing schedule {program_name(filepath)}")
+    print(f"reading from {filepath}")
     print("firing schedule:")
 
-    with open(filename, "rt") as f:
+    with open(filepath, "rt") as f:
         for line in f.readlines():
             line = line.strip()
             timestamp, _, temp = line.partition(" ")
