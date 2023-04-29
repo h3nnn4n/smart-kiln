@@ -137,12 +137,15 @@ void set_cmd(String cmd) {
 	} else if (key == "kp") {
 		pid_kp = value;
 		EEPROM.put(PID_KP_ADDR, pid_kp);
+		pid.SetTunings(pid_kp, pid_ki, pid_kd);
 	} else if (key == "kd") {
 		pid_kd = value;
 		EEPROM.put(PID_KD_ADDR, pid_kd);
+		pid.SetTunings(pid_kp, pid_ki, pid_kd);
 	} else if (key == "ki") {
 		pid_ki = value;
 		EEPROM.put(PID_KI_ADDR, pid_ki);
+		pid.SetTunings(pid_kp, pid_ki, pid_kd);
 	} else if (key == "pid_enabled") {
 		pid_enabled = value;
 		pid.SetMode(pid_enabled);
