@@ -149,6 +149,7 @@ void set_cmd(String cmd) {
 	} else if (key == "pid_enabled") {
 		pid_enabled = value;
 		pid.SetMode(pid_enabled);
+		pid_enabled = pid.GetMode();
 
 		if (!pid_enabled) {
 			analogWrite(SSR, 0);
