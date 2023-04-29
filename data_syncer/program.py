@@ -58,7 +58,7 @@ class ProgramState:
 
     def _calculate_temperature(self, time: timedelta) -> float:
         for time1, time2 in itertools.pairwise(self.program.keys()):
-            if time1 < time and time < time2:
+            if time1 < time and time <= time2:
                 break
 
         temp1 = self.program[time1]
