@@ -30,7 +30,6 @@ class ProgramState:
         # These are timedeltas
         self.program_timer = timedelta(seconds=0)
         self.end_time_offset = self._calculate_end_offset()
-        self.program_update_interval = timedelta(seconds=config.PROGRAM_UPDATE_INTERVAL)
 
         self.x: list[datetime] = []
         self.y: list[float] = []
@@ -55,6 +54,10 @@ class ProgramState:
 
         self.now += self.program_update_interval
         self.program_timer += self.program_update_interval
+
+    @property
+    def program_update_interval(self) -> timedelta:
+        return timedelta(seconds=config.PROGRAM_UPDATE_INTERVAL)
 
     def update(self) -> bool:
         """
