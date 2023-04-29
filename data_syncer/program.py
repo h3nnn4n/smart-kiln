@@ -11,8 +11,9 @@ from time import sleep
 import matplotlib.pyplot as plt  # type:ignore
 import seaborn as sns  # type:ignore
 
+import config
 
-PROGRAM_UPDATE_INTERVAL = timedelta(seconds=60)
+
 sns.set_style("whitegrid")
 
 
@@ -29,6 +30,7 @@ class ProgramState:
         # These are timedeltas
         self.program_timer = timedelta(seconds=0)
         self.end_time_offset = self._calculate_end_offset()
+        self.program_update_interval = timedelta(seconds=config.PROGRAM_UPDATE_INTERVAL)
 
         self.x: list[datetime] = []
         self.y: list[float] = []
@@ -36,17 +38,17 @@ class ProgramState:
     def _update_timer(self):
         """
         If in preview_mode, `now` and `program_timer` are increased by
-        `PROGRAM_UPDATE_INTERVAL` and the function returns immediately.
+        `program_update_interval` and the function returns immediately.
 
         Otherwise, the function waits the time set in
-        `PROGRAM_UPDATE_INTERVAL`, then updates `now` and `program_timer` and
+        `program_update_interval`, then updates `now` and `program_timer` and
         returns.
         """
         if not self.preview_mode:
-            sleep(PROGRAM_UPDATE_INTERVAL.total_seconds())
+            sleep(self.program_update_interval.total_seconds())
 
-        self.now += PROGRAM_UPDATE_INTERVAL
-        self.program_timer += PROGRAM_UPDATE_INTERVAL
+        self.now += self.program_update_interval
+        self.program_timer += self.program_update_interval
 
     def update(self) -> bool:
         """
