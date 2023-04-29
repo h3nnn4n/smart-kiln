@@ -6,8 +6,8 @@ PROGRAM_UPDATE_INTERVAL = timedelta(seconds=60)
 DEBUG = True
 
 if DEBUG:
-    import matplotlib.pyplot as plt  # noqa
-    import seaborn as sns  # noqa
+    import matplotlib.pyplot as plt  # type:ignore
+    import seaborn as sns  # type:ignore
 
     sns.set_style("whitegrid")
 
