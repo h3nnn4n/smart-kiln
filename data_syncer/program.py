@@ -2,6 +2,7 @@
 
 import argparse
 import itertools
+import pickle
 import sys
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -115,23 +116,48 @@ def main():
     parser.add_argument("filepath", help="File with the firing schedule")
     parser.add_argument("--preview", action="store_true")
     parser.add_argument("--start", action="store_true")
+    parser.add_argument("--resume", action="store_true")
     args = parser.parse_args()
 
-    if args.preview and args.start:
-        print("can't preview and start at the same time")
+    conflicting_args = [args.preview, args.start, args.resume]
+    if sum(conflicting_args) > 1:
+        print("conflicting args")
         sys.exit(1)
 
-    program = read_program(args.filepath)
-    program_state = ProgramState(
-        program=program,
-        preview_mode=args.preview,
-    )
+    if sum(conflicting_args) == 0:
+        print("please set an action, eg --start")
+        sys.exit(1)
+
+    program_name = get_program_name(args.filepath)
+
+    if args.start or args.preview:
+        program = read_program(args.filepath)
+        program_state = ProgramState(
+            program=program,
+            preview_mode=args.preview,
+        )
+
+    if args.resume:
+        program_state = read_state(program_name)
 
     while program_state.update():
-        pass
+        if not args.preview:
+            store_state(program_state, program_name)
 
 
-def program_name(filepath: str) -> str:
+def store_state(program: ProgramState, program_name: str) -> None:
+    program_state_filepath = f"{program_name}.pickle"
+    with open(program_state_filepath, "wb") as f:
+        pickle.dump(program, f, pickle.HIGHEST_PROTOCOL)
+
+
+def read_state(program_name: str) -> ProgramState:
+    program_state_filepath = f"{program_name}.pickle"
+    with open(program_state_filepath, "rb") as f:
+        return pickle.load(f)
+
+
+def get_program_name(filepath: str) -> str:
     filename = Path(filepath).name
     program_name, _, _ = filename.partition(".")
     return program_name
@@ -140,7 +166,7 @@ def program_name(filepath: str) -> str:
 def read_program(filepath: str) -> dict[timedelta, int]:
     temps = {}
 
-    print(f"firing schedule {program_name(filepath)}")
+    print(f"firing schedule {get_program_name(filepath)}")
     print(f"reading from {filepath}")
     print("firing schedule:")
 
