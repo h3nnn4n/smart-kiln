@@ -102,7 +102,7 @@ class ProgramState:
         return end_time
 
     def _write_setpoint(self, temperature: float) -> None:
-        with open("setpoint.txt", "wt") as f:
+        with open("temp.txt", "wt") as f:
             f.write(f"setpoint={temperature}\n")
             f.write("pid_enabled=1.0\n")
 
