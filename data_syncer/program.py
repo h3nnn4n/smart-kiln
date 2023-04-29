@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 
-import itertools
 import argparse
+import itertools
+from pathlib import Path
+import sys
 from datetime import datetime, timedelta
 
 import matplotlib.pyplot as plt  # type:ignore
@@ -12,8 +14,11 @@ sns.set_style("whitegrid")
 
 
 class ProgramState:
-    def __init__(self, program: dict[timedelta, int], preview_mode: bool = True):
-        self.program = program
+    def __init__(self, filename: str, preview_mode: bool = True):
+        self.filename = filename
+        print(f"firing schedule: {self.program_name}")
+
+        self.program = read_program(filename)
         self.preview_mode = preview_mode
 
         # These are actual timestamps
@@ -23,6 +28,12 @@ class ProgramState:
         # These are timedeltas
         self.program_timer = timedelta(seconds=0)
         self.end_time_offset = self._calculate_end_offset()
+
+    @property
+    def program_name(self):
+        base_filename = Path(self.filename).name
+        program_name, _, _ = base_filename.partition(".")
+        return program_name
 
     def _calculate_end_offset(self):
         return max(list(self.program.keys()))
@@ -76,11 +87,18 @@ def main():
         description="Reads a firing schedule and forwards it to the kiln",
     )
     parser.add_argument("filename", help="File with the firing schedule")
-    parser.add_argument("-p", "--preview", action="store_true")
+    parser.add_argument("--preview", action="store_true")
+    parser.add_argument("--start", action="store_true")
     args = parser.parse_args()
 
-    program = read_program(args.filename)
-    program_state = ProgramState(program, preview_mode=args.preview)
+    if args.preview and args.start:
+        print("can't preview and start at the same time")
+        sys.exit(1)
+
+    program_state = ProgramState(
+        filename=args.filename,
+        preview_mode=args.preview,
+    )
     program_state.run()
 
 
