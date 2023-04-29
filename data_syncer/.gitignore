@@ -12,3 +12,4 @@ __pycache__
 
 # Setpoint override
 setpoint.txt
+temp.txt

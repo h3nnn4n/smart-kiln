@@ -94,10 +94,13 @@ def read_state_file():
 def read_temp_file():
     data = {}
 
-    with open("temp.txt", "rt") as f:
-        for line in f.readlines():
-            line = line.strip()
-            key, _, value = line.partition("=")
-            data[key] = value
+    try:
+        with open("temp.txt", "rt") as f:
+            for line in f.readlines():
+                line = line.strip()
+                key, _, value = line.partition("=")
+                data[key] = value
+    except Exception as e:
+        print(f"WARN: Failed to read temp.txt with error {e}")
 
     return data
