@@ -52,10 +52,14 @@ class ProgramState:
         if not self.preview_mode and not first_update:
             sleep(self.program_update_interval.total_seconds())
 
-        now = datetime.now()
-        timestep = now - self.now
-        self.now = now
-        self.program_timer += timestep
+        if self.preview_mode:
+            self.now += self.program_update_interval
+            self.program_timer += self.program_update_interval
+        else:
+            now = datetime.now()
+            timestep = now - self.now
+            self.now = now
+            self.program_timer += timestep
 
     @property
     def program_update_interval(self) -> timedelta:
