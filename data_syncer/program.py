@@ -1,20 +1,17 @@
 import itertools
 from datetime import datetime, timedelta
 
+import matplotlib.pyplot as plt  # type:ignore
+import seaborn as sns  # type:ignore
+
 PROGRAM_UPDATE_INTERVAL = timedelta(seconds=60)
-
-DEBUG = True
-
-if DEBUG:
-    import matplotlib.pyplot as plt  # type:ignore
-    import seaborn as sns  # type:ignore
-
-    sns.set_style("whitegrid")
+sns.set_style("whitegrid")
 
 
 class ProgramState:
-    def __init__(self, program):
+    def __init__(self, program: dict[timedelta, int], preview_mode: bool = True):
         self.program = program
+        self.preview_mode = preview_mode
 
         # These are actual timestamps
         self.start_time = datetime.now()
@@ -46,14 +43,14 @@ class ProgramState:
             target_temp = self._calculate_temperature(self.program_timer)
             print(f"{now=} {target_temp=}")
 
-            if DEBUG:
+            if self.preview_mode:
                 x.append(now)
                 y.append(target_temp)
 
-        if DEBUG:
+        if self.preview_mode:
             sns.lineplot(x=x, y=y)
             sns.despine(trim=True)
-            plt.xticks(rotation=20, ha='right')
+            plt.xticks(rotation=20, ha="right")
             plt.savefig("plot.png")
 
     def _calculate_temperature(self, time: timedelta) -> float:
