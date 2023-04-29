@@ -139,6 +139,9 @@ def main():
             preview_mode=args.preview,
         )
 
+        if args.start:
+            store_state(program_state, program_name)
+
     if args.resume:
         program_state = read_state(program_name)
 
