@@ -43,8 +43,14 @@ class ProgramState:
         Otherwise, the function waits the time set in
         `program_update_interval`, then updates `now` and `program_timer` and
         returns.
+
+        The first time this function is called, it never sleeps. This ensures
+        that we set the temperature straightway, instead of waiting for a full
+        timestep before doing it.
         """
-        if not self.preview_mode:
+        first_update = self.start_time == self.now
+
+        if not self.preview_mode and not first_update:
             sleep(self.program_update_interval.total_seconds())
 
         self.now += self.program_update_interval
