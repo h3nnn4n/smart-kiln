@@ -1,4 +1,7 @@
+#!/usr/bin/env python3
+
 import itertools
+import argparse
 from datetime import datetime, timedelta
 
 import matplotlib.pyplot as plt  # type:ignore
@@ -21,9 +24,6 @@ class ProgramState:
         self.program_timer = timedelta(seconds=0)
         self.end_time_offset = self._calculate_end_offset()
 
-        for k, v in self.program.items():
-            print(f"{k} {v}")
-
     def _calculate_end_offset(self):
         return max(list(self.program.keys()))
 
@@ -41,7 +41,9 @@ class ProgramState:
             now += PROGRAM_UPDATE_INTERVAL
             self.program_timer += PROGRAM_UPDATE_INTERVAL
             target_temp = self._calculate_temperature(self.program_timer)
-            print(f"{now=} {target_temp=}")
+
+            if not self.preview_mode:
+                print(f"{now=} {target_temp=}")
 
             if self.preview_mode:
                 x.append(now)
@@ -69,24 +71,37 @@ class ProgramState:
 
 
 def main():
-    program = read_program()
-    program_state = ProgramState(program)
+    parser = argparse.ArgumentParser(
+        prog="SmartKiln - Firing Schedule",
+        description="Reads a firing schedule and forwards it to the kiln",
+    )
+    parser.add_argument("filename", help="File with the firing schedule")
+    parser.add_argument("-p", "--preview", action="store_true")
+    args = parser.parse_args()
+
+    program = read_program(args.filename)
+    program_state = ProgramState(program, preview_mode=args.preview)
     program_state.run()
 
 
-def read_program():
+def read_program(filename: str) -> dict[timedelta, int]:
     temps = {}
 
-    with open("program.txt", "rt") as f:
+    print(f"reading from {filename}")
+    print("firing schedule:")
+
+    with open(filename, "rt") as f:
         for line in f.readlines():
             line = line.strip()
             timestamp, _, temp = line.partition(" ")
             hour, _, minute = timestamp.partition(":")
             time_offset = timedelta(hours=int(hour), minutes=int(minute))
+            temps[time_offset] = int(temp)
 
-            temp = int(temp)
+            print(f"{timestamp} {temp}")
 
-            temps[time_offset] = temp
+    print()
+    print(f"firing schedule has {len(temps)} steps")
 
     return temps
 
