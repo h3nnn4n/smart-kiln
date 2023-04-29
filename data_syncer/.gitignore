@@ -4,3 +4,11 @@ __pycache__
 
 # Ignore program previews
 *.png
+
+
+# Ignore program state pickles
+*.pickle
+
+
+# Setpoint override
+setpoint.txt
