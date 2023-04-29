@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+from time import sleep
 import argparse
 import itertools
 from pathlib import Path
@@ -22,7 +23,8 @@ class ProgramState:
         self.preview_mode = preview_mode
 
         # These are actual timestamps
-        self.start_time = datetime.now()
+        self.now = datetime.now()
+        self.start_time = self.now
         self.end_time = self._calculate_end_time()
 
         # These are timedeltas
@@ -35,6 +37,44 @@ class ProgramState:
         program_name, _, _ = base_filename.partition(".")
         return program_name
 
+    def _update_timer(self):
+        """
+        If in preview_mode, `now` and `program_timer` are increased by
+        `PROGRAM_UPDATE_INTERVAL` and the function returns immediately.
+
+        Otherwise, the function waits the time set in
+        `PROGRAM_UPDATE_INTERVAL`, then updates `now` and `program_timer` and
+        returns.
+        """
+        if not self.preview_mode:
+            sleep(PROGRAM_UPDATE_INTERVAL.total_seconds())
+
+        self.now += PROGRAM_UPDATE_INTERVAL
+        self.program_timer += PROGRAM_UPDATE_INTERVAL
+
+    def run(self):
+        x = []
+        y = []
+
+        while self.now < self.end_time:
+            self._update_timer()
+
+            target_temp = self._calculate_temperature(self.program_timer)
+
+            if not self.preview_mode:
+                self._write_setpoint(target_temp)
+                print(f"{self.now} {target_temp:6.2f}c")
+
+            if self.preview_mode:
+                x.append(self.now)
+                y.append(target_temp)
+
+        if self.preview_mode:
+            sns.lineplot(x=x, y=y)
+            sns.despine(trim=True)
+            plt.xticks(rotation=20, ha="right")
+            plt.savefig("plot.png")
+
     def _calculate_end_offset(self):
         return max(list(self.program.keys()))
 
@@ -43,28 +83,10 @@ class ProgramState:
         end_time = self.start_time + end_time_offset
         return end_time
 
-    def run(self):
-        now = self.start_time
-        x = []
-        y = []
-
-        while now < self.end_time:
-            now += PROGRAM_UPDATE_INTERVAL
-            self.program_timer += PROGRAM_UPDATE_INTERVAL
-            target_temp = self._calculate_temperature(self.program_timer)
-
-            if not self.preview_mode:
-                print(f"{now=} {target_temp=}")
-
-            if self.preview_mode:
-                x.append(now)
-                y.append(target_temp)
-
-        if self.preview_mode:
-            sns.lineplot(x=x, y=y)
-            sns.despine(trim=True)
-            plt.xticks(rotation=20, ha="right")
-            plt.savefig("plot.png")
+    def _write_setpoint(self, temperature: float) -> None:
+        with open("setpoint.txt", "wt") as f:
+            f.write(f"setpoint={temperature}")
+            f.write("\n")
 
     def _calculate_temperature(self, time: timedelta) -> float:
         for time1, time2 in itertools.pairwise(self.program.keys()):
