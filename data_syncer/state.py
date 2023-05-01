@@ -1,5 +1,6 @@
 import pickle
 from collections import defaultdict
+import typing as t
 from datetime import datetime
 
 from metrics import push_measurement
@@ -12,7 +13,7 @@ def set_var(conn, key, value):
 
 
 class State:
-    __pickle_filename: str
+    __pickle_filename: t.Optional[str]
 
     def __init__(self, conn):
         self.kp = 0.0
@@ -25,6 +26,7 @@ class State:
         self.conn = conn
 
         self.data_history = defaultdict(list)
+        self.__pickle_filename = None
 
     def update(self):
         self.delta_sync()
@@ -96,11 +98,10 @@ class State:
 
     @property
     def _pickle_filename(self) -> str:
-        if not hasattr(self, "__pickle_filename"):
+        if not self.__pickle_filename:
             now = datetime.now()
             timestamp = now.strftime("%Y-%m-%d_%H-%M-%S")
-            filename = f"state_{timestamp}.pickle"
-            self.__pickle_filename = filename
+            self.__pickle_filename = f"state_{timestamp}.pickle"
 
         return self.__pickle_filename
 
