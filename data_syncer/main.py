@@ -90,7 +90,6 @@ def loop(port: t.Optional[str]):
                     print(
                         f"WARN: temp changed {delta_temp}c in {time_since_last_read}s (from {temp_history[sensor_id]}c to {temperature}c  SKIPPING"
                     )
-                    continue
 
             push_measurement(
                 "temperature",
