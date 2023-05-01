@@ -1,34 +1,8 @@
+import pickle
+from collections import defaultdict
+from datetime import datetime
+
 from metrics import push_measurement
-
-
-def read_pid(conn):
-    conn.writelines(["READ_PID".encode()])
-    data = conn.readline().strip().decode()
-
-    if data[:3] != "PID":
-        print("WARN: Data received didnt start with PID! got:")
-        print(data)
-        return
-
-    tokens = data[4:].split(";")
-    for token in tokens:
-        key, _, value = token.partition("=")
-        value = float(value)
-
-        if key in ["kp", "kd", "ki"]:
-            metric_name = "pid_param"
-        else:
-            metric_name = "pid_state"
-
-        push_measurement(
-            metric_name,
-            value=value,
-            tags={
-                "pid": True,
-                "key": key,
-            },
-        )
-        # print(f"{key}={value}")
 
 
 def set_var(conn, key, value):
@@ -38,20 +12,23 @@ def set_var(conn, key, value):
 
 
 class State:
+    __pickle_filename: str
+
     def __init__(self, conn):
         self.kp = 0.0
         self.kd = 0.0
         self.ki = 0.0
 
         self.setpoint = 0.0
-
         self.pid_enabled = 0.0
 
         self.conn = conn
 
+        self.data_history = defaultdict(list)
+
     def update(self):
         self.delta_sync()
-        read_pid(self.conn)
+        self.read_pid()
 
     def delta_sync(self):
         for key, value in self.state.items():
@@ -70,13 +47,62 @@ class State:
             setattr(self, key, value)
             set_var(self.conn, key, value)
 
-        read_pid(self.conn)
+        self.read_pid()
+
+    def read_pid(self):
+        self.conn.writelines(["READ_PID".encode()])
+        data = self.conn.readline().strip().decode()
+
+        if data[:3] != "PID":
+            print("WARN: Data received didnt start with PID! got:")
+            print(data)
+            return
+
+        now = datetime.now()
+        self.data_history["time"].append(now)
+
+        tokens = data[4:].split(";")
+        for token in tokens:
+            key, _, value = token.partition("=")
+            value = float(value)
+
+            if key in ["kp", "kd", "ki"]:
+                metric_name = "pid_param"
+            else:
+                metric_name = "pid_state"
+
+            push_measurement(
+                metric_name,
+                value=value,
+                tags={
+                    "pid": True,
+                    "key": key,
+                },
+            )
+            self.data_history[metric_name].append(value)
+            # print(f"{key}={value}")
+
+        self._write_state_to_disk()
+
+    def _write_state_to_disk(self) -> None:
+        with open(self._pickle_filename, "wb") as f:
+            pickle.dump(self, f)
 
     @property
     def state(self):
         state = read_state_file()
         state.update(read_temp_file())
         return state
+
+    @property
+    def _pickle_filename(self) -> str:
+        if not hasattr(self, "__pickle_filename"):
+            now = datetime.now()
+            timestamp = now.strftime("%Y-%m-%d_%H-%M-%S")
+            filename = f"state_{timestamp}.pickle"
+            self.__pickle_filename = filename
+
+        return self.__pickle_filename
 
 
 def read_state_file():
