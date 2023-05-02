@@ -16,6 +16,9 @@ import config
 
 sns.set_style("whitegrid")
 
+STATE_FILE_BKP_COUNTER = 0
+STATE_FILE_BKP_MODULO = 3
+
 
 class ProgramState:
     def __init__(self, program: dict[timedelta, int], preview_mode: bool = True):
@@ -165,9 +168,15 @@ def main():
 
 
 def store_state(program: ProgramState, program_name: str) -> None:
+    global STATE_FILE_BKP_COUNTER
+    STATE_FILE_BKP_COUNTER = (STATE_FILE_BKP_COUNTER + 1) % STATE_FILE_BKP_MODULO
+
+    program_state_filepath_bkp = f"{program_name}_{STATE_FILE_BKP_COUNTER + 1}.pickle"
     program_state_filepath = f"{program_name}.pickle"
-    with open(program_state_filepath, "wb") as f:
-        pickle.dump(program, f, pickle.HIGHEST_PROTOCOL)
+
+    for filepath in [program_state_filepath_bkp, program_state_filepath]:
+        with open(filepath, "wb") as f:
+            pickle.dump(program, f, pickle.HIGHEST_PROTOCOL)
 
 
 def read_state(program_name: str) -> ProgramState:
