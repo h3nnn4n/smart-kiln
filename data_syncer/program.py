@@ -88,8 +88,9 @@ class ProgramState:
             self._write_setpoint(target_temp)
             print(f"{self.now} {target_temp:6.2f}c")
 
-        self.x.append(self.now)
-        self.y.append(target_temp)
+        if self.preview_mode:
+            self.x.append(self.now)
+            self.y.append(target_temp)
 
         return True
 
