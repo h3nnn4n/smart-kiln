@@ -34,8 +34,15 @@ def push(data):
 
 
 def _push(data):
-    client = _influxdb()
-    client.write_points(data)
+    try:
+        client = _influxdb()
+        client.write_points(data)
+    except Exception as e:
+        if config.INFLUXDB_IGNORE_ERRORS:
+            print(f"WARN: Failed to push {len(data)} data points with error {e}")
+            return
+
+        raise
 
 
 def _ensure_timestamp(data):
