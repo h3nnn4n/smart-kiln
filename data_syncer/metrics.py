@@ -42,8 +42,8 @@ def _push(data: list[dict]) -> None:
 def _push_to_disk(data: list[dict]) -> None:
     try:
         now = datetime.utcnow()
-        now.replace(second=0, microsecond=0)
-        now.replace(minute=(now.minute // 10) * 10)
+        now = now.replace(second=0, microsecond=0)
+        now = now.replace(minute=(now.minute // 10) * 10)
 
         filename = f"metrics_{now.strftime('%Y%m%d_%H%M')}.jsonl"
 
