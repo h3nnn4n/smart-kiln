@@ -15,7 +15,10 @@ INFLUXDB_PORT = config("INFLUXDB_PORT")
 INFLUXDB_USER = config("INFLUXDB_USER")
 INFLUXDB_PASSWORD = config("INFLUXDB_PASSWORD")
 INFLUXDB_DATABASE = config("INFLUXDB_DATABASE")
-INFLUXDB_IGNORE_ERRORS = config("INFLUXDB_IGNORE_ERRORS", default=False, cast=bool)
+INFLUXDB_IGNORE_ERRORS = config("INFLUXDB_IGNORE_ERRORS", default=True, cast=bool)
+
+LOCAL_DB_ENABLE = config("LOCAL_DB_ENABLE", default=True, cast=bool)
+LOCAL_DB_IGNORE_ERRORS = config("LOCAL_DB_IGNORE_ERRORS", default=True, cast=bool)
 
 ASYNC_METRICS = config("ASYNC_METRICS", default=True, cast=bool)
 

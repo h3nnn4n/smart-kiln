@@ -1,3 +1,4 @@
+import json
 from datetime import datetime, timezone
 from threading import Thread
 
@@ -33,13 +34,38 @@ def push(data):
         _push(data)
 
 
-def _push(data):
+def _push(data: list[dict]) -> None:
+    _push_to_disk(data)
+    _push_to_influx(data)
+
+
+def _push_to_disk(data: list[dict]) -> None:
+    try:
+        now = datetime.utcnow()
+        now.replace(second=0, microsecond=0)
+        now.replace(minute=(now.minute // 10) * 10)
+
+        filename = f"metrics_{now.strftime('%Y%m%d_%H%M')}.jsonl"
+
+        with open(filename, "wt") as f:
+            f.write(json.dumps(data))
+            f.write("\n")
+
+    except Exception as e:
+        if config.LOCAL_DB_IGNORE_ERRORS:
+            print(f"WARN: Failed to write {len(data)} data points to local db with error {e}")
+            return
+
+        raise
+
+
+def _push_to_influx(data: list[dict]) -> None:
     try:
         client = _influxdb()
         client.write_points(data)
     except Exception as e:
         if config.INFLUXDB_IGNORE_ERRORS:
-            print(f"WARN: Failed to push {len(data)} data points with error {e}")
+            print(f"WARN: Failed to push {len(data)} data points to influxdb with error {e}")
             return
 
         raise
