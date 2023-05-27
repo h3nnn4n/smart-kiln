@@ -1,5 +1,6 @@
 import json
 from datetime import datetime, timezone
+from os import path
 from threading import Thread
 
 from influxdb import InfluxDBClient
@@ -46,8 +47,9 @@ def _push_to_disk(data: list[dict]) -> None:
         now = now.replace(minute=(now.minute // 10) * 10)
 
         filename = f"metrics_{now.strftime('%Y%m%d_%H%M')}.jsonl"
+        filepath = path.join("metrics_db", filename)
 
-        with open(filename, "a+") as f:
+        with open(filepath, "a+") as f:
             f.write(json.dumps(data))
             f.write("\n")
 
