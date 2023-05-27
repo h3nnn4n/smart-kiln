@@ -13,3 +13,6 @@ __pycache__
 # Setpoint override
 setpoint.txt
 temp.txt
+
+# Metrics db
+metrics_db
