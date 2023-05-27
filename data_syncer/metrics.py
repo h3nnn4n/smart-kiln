@@ -47,7 +47,7 @@ def _push_to_disk(data: list[dict]) -> None:
 
         filename = f"metrics_{now.strftime('%Y%m%d_%H%M')}.jsonl"
 
-        with open(filename, "wt") as f:
+        with open(filename, "a+") as f:
             f.write(json.dumps(data))
             f.write("\n")
 
