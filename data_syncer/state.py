@@ -1,4 +1,5 @@
 import pickle
+import math
 from collections import defaultdict
 import typing as t
 from datetime import datetime
@@ -67,6 +68,9 @@ class State:
         for token in tokens:
             key, _, value = token.partition("=")
             value = float(value)
+
+            if math.isnan(value):
+                continue
 
             if key in ["kp", "kd", "ki"]:
                 metric_name = "pid_param"
