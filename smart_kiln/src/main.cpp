@@ -16,16 +16,6 @@ const int sensor4_CS = 9;
 // The Solid State Relay pin
 const int SSR = 3;
 
-unsigned long now;
-
-// How long we wait before sending the data to the logger
-const int SERIAL_OUT_INTERVAL = 1 * 1000;
-unsigned long serial_out_timer = 0;
-
-// How long we wait before reading the sensors
-const int SENSOR_READ_INTERVAL = 1 * 250;
-unsigned long sensor_read_timer = 0;
-
 unsigned int counter = 0;
 
 double pid_input;
@@ -55,10 +45,6 @@ MAX6675 sensor3(common_CLK, sensor3_CS, common_DO);
 void setup() {
     Serial.begin(115200);
 	Serial.setTimeout(10);
-
-	now = millis();
-	serial_out_timer = millis();
-	sensor_read_timer = millis();
 
     pinMode(SSR, OUTPUT);
 	analogWrite(SSR, 0);
@@ -95,15 +81,13 @@ void log_pid_data() {
 }
 
 void read_pid_temp() {
-	if ((now - sensor_read_timer) > SENSOR_READ_INTERVAL) {
-		t1 = sensor1.readCelsius();
-
-		pid_input = t1;
-		sensor_read_timer = now;
-	}
+	t1 = sensor1.readCelsius();
+	pid_input = t1;
 }
 
 void pid_loop() {
+	read_pid_temp();
+
 	if (pid.Compute()) {
 		analogWrite(SSR, pid_output);
 	}
@@ -124,7 +108,6 @@ void log_temps() {
 	Serial.println();
 
 	counter++;
-	serial_out_timer = now;
 }
 
 void set_cmd(String cmd) {
@@ -181,9 +164,6 @@ void read_serial() {
 }
 
 void loop() {
-	now = millis();
-
-	read_pid_temp();
 	pid_loop();
 
 	read_serial();
