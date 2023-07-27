@@ -54,6 +54,7 @@ MAX6675 sensor3(common_CLK, sensor3_CS, common_DO);
 
 void setup() {
     Serial.begin(115200);
+	Serial.setTimeout(10);
 
 	now = millis();
 	serial_out_timer = millis();
