@@ -2,6 +2,7 @@ import typing as t
 from datetime import datetime
 from os import listdir
 from os.path import join
+from time import sleep
 
 import serial
 
@@ -43,6 +44,12 @@ def loop(port: t.Optional[str]):
     state.full_sync()
 
     while measurements_taken < config.RESET_AFTER_N_MEASUREMENTS:
+        now = datetime.now()
+        time_since_last_read = (now - last_read).total_seconds()
+        time_to_sleep = config.LOOP_UPDATE_INTERVAL - time_since_last_read
+        if time_to_sleep > 0.0:
+            sleep(time_to_sleep)
+
         state.update()
 
         conn.writelines(["READ_TEMP".encode()])

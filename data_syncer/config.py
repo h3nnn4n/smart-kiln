@@ -22,4 +22,8 @@ LOCAL_DB_IGNORE_ERRORS = config("LOCAL_DB_IGNORE_ERRORS", default=True, cast=boo
 
 ASYNC_METRICS = config("ASYNC_METRICS", default=True, cast=bool)
 
+# The interval between each temp update from the firing schedule program
 PROGRAM_UPDATE_INTERVAL = config("PROGRAM_UPDATE_INTERVAL", default=60, cast=int)
+
+# The interval between each state sync with the arduino board
+LOOP_UPDATE_INTERVAL = config("LOOP_UPDATE_INTERVAL", default=1, cast=float)
