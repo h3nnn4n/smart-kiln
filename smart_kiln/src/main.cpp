@@ -102,6 +102,11 @@ void log_temps() {
 	t1 = sensor1.readCelsius();
 	t2 = sensor2.readCelsius();
 	t3 = sensor3.readCelsius();
+
+	// The first read, after reading from the max6675 sensor always comes out
+	// with the wrong temps. Reading it twice is a workaround for now until the
+	// rootcause is fixed.
+	sensor4.readCelsius();
 	t4 = sensor4.readCelsius();
 
 	Serial.print(counter);
