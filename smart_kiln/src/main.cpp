@@ -2,6 +2,7 @@
 #include <EEPROM.h>
 #include <Wire.h>
 
+#include "max31855.h"
 #include "max6675.h"
 #include "pid.h"
 
@@ -12,6 +13,8 @@ const int sensor1_CS = 6;
 const int sensor2_CS = 7;
 const int sensor3_CS = 8;
 const int sensor4_CS = 9;
+
+const int sensor4_DO = 13;
 
 // The Solid State Relay pin
 const int SSR = 3;
@@ -30,6 +33,7 @@ bool pid_enabled = false;
 float t1 = 0;
 float t2 = 0;
 float t3 = 0;
+float t4 = 0;
 
 unsigned int PID_KP_ADDR = 0;
 unsigned int PID_KI_ADDR = 4;
@@ -41,6 +45,7 @@ PID pid(&pid_input, &pid_output, &pid_setpoint, pid_kp, pid_ki, pid_kd, 0);
 MAX6675 sensor1(common_CLK, sensor1_CS, common_DO);
 MAX6675 sensor2(common_CLK, sensor2_CS, common_DO);
 MAX6675 sensor3(common_CLK, sensor3_CS, common_DO);
+MAX31855 sensor4(common_CLK, sensor4_CS, sensor4_DO);
 
 void setup() {
     Serial.begin(115200);
@@ -97,6 +102,7 @@ void log_temps() {
 	t1 = sensor1.readCelsius();
 	t2 = sensor2.readCelsius();
 	t3 = sensor3.readCelsius();
+	t4 = sensor4.readCelsius();
 
 	Serial.print(counter);
 	Serial.print(",");
@@ -105,6 +111,8 @@ void log_temps() {
 	Serial.print(t2);
 	Serial.print(",");
 	Serial.print(t3);
+	Serial.print(",");
+	Serial.print(t4);
 	Serial.println();
 
 	counter++;
