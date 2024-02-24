@@ -8,6 +8,9 @@ from influxdb import InfluxDBClient
 import config
 
 
+INFLUX_CLIENT = None
+
+
 def push_measurement(name, value, tags=None):
     if tags is None:
         tags = {}
@@ -41,6 +44,9 @@ def _push(data: list[dict]) -> None:
 
 
 def _push_to_disk(data: list[dict]) -> None:
+    if not config.LOCAL_DB_ENABLE:
+        return
+
     try:
         now = datetime.utcnow()
         now = now.replace(second=0, microsecond=0)
@@ -87,12 +93,17 @@ def _ensure_timestamp(data):
 
 
 def _influxdb():
-    return InfluxDBClient(
-        config.INFLUXDB_HOST,
-        config.INFLUXDB_PORT,
-        config.INFLUXDB_USER,
-        config.INFLUXDB_PASSWORD,
-        config.INFLUXDB_DATABASE,
-        ssl=False,
-        verify_ssl=False,
-    )
+    global INFLUX_CLIENT
+
+    if not INFLUX_CLIENT:
+        INFLUXDB_CLIENT = InfluxDBClient(
+            config.INFLUXDB_HOST,
+            config.INFLUXDB_PORT,
+            config.INFLUXDB_USER,
+            config.INFLUXDB_PASSWORD,
+            config.INFLUXDB_DATABASE,
+            ssl=False,
+            verify_ssl=False,
+        )
+
+    return INFLUXDB_CLIENT
