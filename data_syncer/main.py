@@ -84,7 +84,7 @@ def loop(port: t.Optional[str]):
         )
 
         for sensor_id, temperature in enumerate(temperatures):
-            if temperature == "nan":
+            if temperature == "nan" or float(temperature) >= 1500:
                 print(f"WARN: sensor {sensor_id} is open")
                 continue
 
