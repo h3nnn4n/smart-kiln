@@ -43,14 +43,19 @@ def push(data):
 
 
 def sync_data_to_influx():
+    if config.INFLUXDB_BATCH_WRITES:
+        print("[WARN] sync_data_to_influx called but INFLUXDB_BATCH_WRITES is not set")
+        return
+
     payload = []
 
     while not QUEUE.empty():
         item = QUEUE.get()
         payload.append(item)
 
-    push_measurement("metrics_batch_size", value=len(payload))
     _write_to_influx(payload)
+    if len(payload) > 0:
+        push_measurement("metrics_batch_size", value=len(payload))
 
 
 def _push(data: list[dict]) -> None:
