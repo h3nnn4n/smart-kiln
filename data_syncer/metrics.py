@@ -1,6 +1,7 @@
 import json
 from datetime import datetime, timezone
 from os import path
+from queue import Empty, SimpleQueue
 from threading import Thread
 
 from influxdb import InfluxDBClient
@@ -9,6 +10,9 @@ import config
 
 
 INFLUX_CLIENT = None
+
+QUEUE = SimpleQueue()
+LAST_INFLUX_BATCH_PUSH = datetime.now()
 
 
 def push_measurement(name, value, tags=None):
@@ -36,6 +40,16 @@ def push(data):
         Thread(target=_push, args=(data,)).start()
     else:
         _push(data)
+
+
+def sync_data_to_influx():
+    payload = []
+
+    while not QUEUE.empty():
+        item = QUEUE.get()
+        payload.append(item)
+
+    _write_to_influx(payload)
 
 
 def _push(data: list[dict]) -> None:
@@ -68,6 +82,21 @@ def _push_to_disk(data: list[dict]) -> None:
 
 
 def _push_to_influx(data: list[dict]) -> None:
+    global LAST_INFLUX_BATCH_PUSH
+
+    if config.INFLUXDB_BATCH_WRITES:
+        for item in data:
+            QUEUE.put(item)
+
+        now = datetime.now()
+        if (now - LAST_INFLUX_BATCH_PUSH).total_seconds() > config.INFLUXDB_BATCH_INTERVAL:
+            sync_data_to_influx()
+            LAST_INFLUX_BATCH_PUSH = now
+    else:
+        _write_to_influx(data)
+
+
+def _write_to_influx(data: list[dict]) -> None:
     try:
         client = _influxdb()
         client.write_points(data)

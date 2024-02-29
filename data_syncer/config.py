@@ -17,6 +17,12 @@ INFLUXDB_PASSWORD = config("INFLUXDB_PASSWORD")
 INFLUXDB_DATABASE = config("INFLUXDB_DATABASE")
 INFLUXDB_IGNORE_ERRORS = config("INFLUXDB_IGNORE_ERRORS", default=True, cast=bool)
 
+# If true, calls to push to influx will be grouped together and set on a single
+# api call. May delay data delivery for a few seconds.
+INFLUXDB_BATCH_WRITES = config("INFLUXDB_BATCH_WRITES", default=True, cast=bool)
+# The minimum amount of time to wait before flushing the batched data
+INFLUXDB_BATCH_INTERVAL = config("INFLUXDB_BATCH_INTERVAL", default=2.0, cast=float)
+
 LOCAL_DB_ENABLE = config("LOCAL_DB_ENABLE", default=True, cast=bool)
 LOCAL_DB_IGNORE_ERRORS = config("LOCAL_DB_IGNORE_ERRORS", default=True, cast=bool)
 
