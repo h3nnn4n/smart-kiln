@@ -10,6 +10,8 @@ ARDMK_DIR         = $(realpath $(PROJECT_DIR)/Arduino-Makefile)
 ### Path to the Arduino application and resources directory.
 ARDUINO_DIR       = /usr/share/arduino
 
+ARDUINO_VERSION   = 181
+
 ### USER_LIB_PATH
 ### Path to where the your project's libraries are stored.
 USER_LIB_PATH     :=  $(realpath $(PROJECT_DIR)/lib)
