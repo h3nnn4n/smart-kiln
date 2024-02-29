@@ -86,8 +86,8 @@ void log_pid_data() {
 }
 
 void read_pid_temp() {
-	t1 = sensor1.readCelsius();
-	pid_input = t1;
+	t4 = sensor1.readCelsius();
+	pid_input = t4;
 }
 
 void pid_loop() {

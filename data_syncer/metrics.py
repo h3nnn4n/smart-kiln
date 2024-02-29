@@ -49,6 +49,7 @@ def sync_data_to_influx():
         item = QUEUE.get()
         payload.append(item)
 
+    push_measurement("metrics_batch_size", value=len(payload))
     _write_to_influx(payload)
 
 
