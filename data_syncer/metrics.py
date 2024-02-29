@@ -43,7 +43,7 @@ def push(data):
 
 
 def sync_data_to_influx():
-    if config.INFLUXDB_BATCH_WRITES:
+    if not config.INFLUXDB_BATCH_WRITES:
         print("[WARN] sync_data_to_influx called but INFLUXDB_BATCH_WRITES is not set")
         return
 
