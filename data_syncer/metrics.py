@@ -15,17 +15,8 @@ QUEUE = SimpleQueue()
 LAST_INFLUX_BATCH_PUSH = datetime.now()
 
 
-def push_measurement(name, value, tags=None):
-    if tags is None:
-        tags = {}
-
-    data = {
-        "measurement": name,
-        "fields": {
-            "value": value,
-        },
-        "tags": tags,
-    }
+def push_measurement(name: str, value, tags=None):
+    data = _build_measurement(name=name, value=value, tags=tags)
 
     push(data)
 
@@ -42,6 +33,23 @@ def push(data):
         _push(data)
 
 
+def _build_measurement(name: str, value, tags=None) -> dict:
+    if tags is None:
+        tags = {}
+
+    data = {
+        "measurement": name,
+        "fields": {
+            "value": value,
+        },
+        "tags": tags,
+    }
+
+    _ensure_timestamp(data)
+
+    return data
+
+
 def sync_data_to_influx():
     if not config.INFLUXDB_BATCH_WRITES:
         print("[WARN] sync_data_to_influx called but INFLUXDB_BATCH_WRITES is not set")
@@ -53,9 +61,13 @@ def sync_data_to_influx():
         item = QUEUE.get()
         payload.append(item)
 
+    if len(payload) == 0:
+        return
+
+    print(f"influx batch size: {len(payload)}")
+    batch_size_measurement = _build_measurement(name="metrics_batch_size", value=len(payload))
+    payload.append(batch_size_measurement)
     _write_to_influx(payload)
-    if len(payload) > 0:
-        push_measurement("metrics_batch_size", value=len(payload))
 
 
 def _push(data: list[dict]) -> None:
