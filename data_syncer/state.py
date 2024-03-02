@@ -5,6 +5,7 @@ import typing as t
 from datetime import datetime
 
 from metrics import push_measurement
+import config
 
 
 def set_var(conn, key, value):
@@ -91,6 +92,9 @@ class State:
         self._write_state_to_disk()
 
     def _write_state_to_disk(self) -> None:
+        if not config.STORE_METRICS_LOCALY:
+            return
+
         with open(self._pickle_filename, "wb") as f:
             pickle.dump(self, f)
 

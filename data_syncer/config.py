@@ -27,6 +27,7 @@ LOCAL_DB_ENABLE = config("LOCAL_DB_ENABLE", default=True, cast=bool)
 LOCAL_DB_IGNORE_ERRORS = config("LOCAL_DB_IGNORE_ERRORS", default=True, cast=bool)
 
 ASYNC_METRICS = config("ASYNC_METRICS", default=True, cast=bool)
+STORE_METRICS_LOCALY = config("STORE_METRICS_LOCALY", default=False, cast=bool)
 
 # The interval between each temp update from the firing schedule program
 PROGRAM_UPDATE_INTERVAL = config("PROGRAM_UPDATE_INTERVAL", default=60, cast=int)
