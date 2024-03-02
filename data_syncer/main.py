@@ -140,6 +140,7 @@ def main():
     print("Smart Kiln data syncer")
     print("running with:")
     print(f"ASYNC_METRICS={config.ASYNC_METRICS}")
+    print(f"STATE_FILE_READ_INTERVAL={config.STATE_FILE_READ_INTERVAL}")
     print(f"LOOP_UPDATE_INTERVAL={config.LOOP_UPDATE_INTERVAL}")
     print(f"PROGRAM_UPDATE_INTERVAL={config.PROGRAM_UPDATE_INTERVAL}")
 

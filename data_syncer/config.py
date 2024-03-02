@@ -34,3 +34,6 @@ PROGRAM_UPDATE_INTERVAL = config("PROGRAM_UPDATE_INTERVAL", default=60, cast=int
 
 # The interval between each state sync with the arduino board
 LOOP_UPDATE_INTERVAL = config("LOOP_UPDATE_INTERVAL", default=1, cast=float)
+
+# The minimum interval between state.txt reads from disk
+STATE_FILE_READ_INTERVAL = config("STATE_FILE_READ_INTERVAL", default=1, cast=float)

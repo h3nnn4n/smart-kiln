@@ -30,11 +30,25 @@ class State:
         self.data_history = defaultdict(list)
         self.__pickle_filename = None
 
+        self.last_state_update = datetime.now()
+
     def update(self):
         self.delta_sync()
         self.read_pid()
 
-    def delta_sync(self):
+    def delta_sync(self, force=False):
+        now = datetime.now()
+        time_since_last_update = (now - self.last_state_update).total_seconds()
+        if not force and time_since_last_update < config.STATE_FILE_READ_INTERVAL:
+            return
+
+        push_measurement(
+            "time_since_last_state_update",
+            value=time_since_last_update,
+            tags={"type": "delta"},
+        )
+        self.last_state_update = now
+
         for key, value in self.state.items():
             value = float(value)
 
@@ -46,6 +60,15 @@ class State:
         """
         Syncs the full state of the kiln PID controller
         """
+        now = datetime.now()
+        time_since_last_update = (now - self.last_state_update).total_seconds()
+        push_measurement(
+            "time_since_last_state_update",
+            value=time_since_last_update,
+            tags={"type": "full"},
+        )
+        self.last_state_update = now
+
         for key, value in self.state.items():
             value = float(value)
             setattr(self, key, value)
