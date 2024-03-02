@@ -137,6 +137,12 @@ def find_port() -> str:
 
 
 def main():
+    print("Smart Kiln data syncer")
+    print("running with:")
+    print(f"ASYNC_METRICS={config.ASYNC_METRICS}")
+    print(f"LOOP_UPDATE_INTERVAL={config.LOOP_UPDATE_INTERVAL}")
+    print(f"PROGRAM_UPDATE_INTERVAL={config.PROGRAM_UPDATE_INTERVAL}")
+
     port = find_port()
     while True:
         loop(port=port)
