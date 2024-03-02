@@ -64,7 +64,6 @@ def sync_data_to_influx():
     if len(payload) == 0:
         return
 
-    print(f"influx batch size: {len(payload)}")
     batch_size_measurement = _build_measurement(name="metrics_batch_size", value=len(payload))
     payload.append(batch_size_measurement)
     _write_to_influx(payload)

@@ -143,6 +143,7 @@ def main():
     print(f"STATE_FILE_READ_INTERVAL={config.STATE_FILE_READ_INTERVAL}")
     print(f"LOOP_UPDATE_INTERVAL={config.LOOP_UPDATE_INTERVAL}")
     print(f"PROGRAM_UPDATE_INTERVAL={config.PROGRAM_UPDATE_INTERVAL}")
+    print()
 
     port = find_port()
     while True:
