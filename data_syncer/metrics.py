@@ -108,8 +108,8 @@ def _push_to_influx(data: list[dict]) -> None:
 
         now = datetime.now()
         if (now - LAST_INFLUX_BATCH_PUSH).total_seconds() > config.INFLUXDB_BATCH_INTERVAL:
-            sync_data_to_influx()
             LAST_INFLUX_BATCH_PUSH = now
+            sync_data_to_influx()
     else:
         _write_to_influx(data)
 
