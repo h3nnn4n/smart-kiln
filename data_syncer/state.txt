@@ -1,5 +1,5 @@
 setpoint=0.0
-kp=1.0
-kd=5.5
-ki=0.25
+kp=0.5
+kd=40.0
+ki=1.0
 pid_enabled=0.0
