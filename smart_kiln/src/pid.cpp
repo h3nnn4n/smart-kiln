@@ -56,6 +56,7 @@ bool PID::Compute()
    if(!inAuto) return false;
    unsigned long now = millis();
    unsigned long timeChange = (now - lastTime);
+   float errorFactor = 0.05f;
    if(timeChange>=SampleTime)
    {
       /*Compute all the working error variables*/
@@ -63,6 +64,11 @@ bool PID::Compute()
       double error = *mySetpoint - input;
       double dInput = (input - lastInput);
       outputSum+= (ki * error);
+
+	  /* HACK: Don't do anything if the input is above the set point. We give a
+	   * small tolerance to allow the PID loop to keep it at the setpoint
+	   * rather and allowing it to dip below it.*/
+	  if (input > (*mySetpoint) * (1.0f + errorFactor)) return false;
 
       /*Add Proportional on Measurement, if P_ON_M is specified*/
       if(!pOnE) outputSum-= kp * dInput;
