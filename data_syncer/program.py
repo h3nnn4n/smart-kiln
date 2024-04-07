@@ -78,6 +78,8 @@ class ProgramState:
         if done:
             if self.preview_mode:
                 self._save_plot()
+
+            self._write_setpoint(temp=0.0, pid_enabled=False)
             return False
 
         self._update_timer()
@@ -108,10 +110,11 @@ class ProgramState:
         end_time = self.start_time + end_time_offset
         return end_time
 
-    def _write_setpoint(self, temperature: float) -> None:
+    def _write_setpoint(self, temperature: float, pid_enabled: bool=True) -> None:
+        pid_value = 1.0 if pid_enabled else 0.0
         with open("temp.txt", "wt") as f:
             f.write(f"setpoint={temperature}\n")
-            f.write("pid_enabled=1.0\n")
+            f.write(f"pid_enabled={pid_value}\n")
 
     def _calculate_temperature(self, time: timedelta) -> float:
         for time1, time2 in itertools.pairwise(self.program.keys()):
