@@ -87,7 +87,12 @@ void log_pid_data() {
 
 void read_pid_temp() {
 	t4 = sensor4.readCelsius();
-	pid_input = t4;
+
+	// HACK: Sometimes the sensor randomly returns high values like 10k.
+	// Ignore those. This is likelly an error status, but whatever.
+	if (t4 < 1500.0f) {
+		pid_input = t4;
+	}
 }
 
 void pid_loop() {
