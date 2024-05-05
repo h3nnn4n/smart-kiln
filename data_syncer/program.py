@@ -79,7 +79,7 @@ class ProgramState:
             if self.preview_mode:
                 self._save_plot()
 
-            self._write_setpoint(temp=0.0, pid_enabled=False)
+            self._write_setpoint(temperature=0.0, pid_enabled=False)
             return False
 
         self._update_timer()
