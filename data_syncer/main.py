@@ -37,8 +37,6 @@ def loop(port: t.Optional[str]):
     last_read = datetime.now()
     state = State(conn)
 
-    temp_history = {}
-
     ping(conn)
 
     state.full_sync()
@@ -89,14 +87,6 @@ def loop(port: t.Optional[str]):
                 continue
 
             temperature = float(temperature)
-            if sensor_id not in temp_history:
-                temp_history[sensor_id] = temperature
-            else:
-                delta_temp = abs(temperature - temp_history[sensor_id])
-                if delta_temp > config.MAX_TEMP_CHANGE:
-                    print(
-                        f"WARN: temp changed {delta_temp}c in {time_since_last_read}s (from {temp_history[sensor_id]}c to {temperature}c  SKIPPING"
-                    )
 
             push_measurement(
                 "temperature",
